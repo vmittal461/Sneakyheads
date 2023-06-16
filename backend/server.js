@@ -38,21 +38,13 @@ export const instance = new Razorpay({
   key_secret: process.env.SECRET,
 });
 app.post("/api/payments/orders", async (req, res) => {
-  try {
-    const options = {
-      amount: Number(req.body.amount * 100),
-      currency: "INR",
-    };
-    const order = await instance.orders.create(options);
-    res.status(200).json({ success: true, order });
-  } catch (error) {
-    console.error("Error creating payment order:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to create payment order" });
-  }
+  const options = {
+    amount: Number(req.body.amount * 100),
+    currency: "INR",
+  };
+  const order = await instance.orders.create(options);
+  res.status(200).json({ success: true, order });
 });
-
 app.get("/api/config/id", (req, res) => {
   res.status(200).json({ key: process.env.KEY });
 });
