@@ -252,13 +252,17 @@ const OrderScreen = () => {
                   )}
                 </ListGroup.Item>
               )}  */}
-              <Button
-                type="button"
-                className="btn-block cartBtn"
-                onClick={backToHomeHandler}
-              >
-                Back to Shopping
-              </Button>
+              <ListGroup.Item>
+                {" "}
+                <Button
+                  type="button"
+                  className="btn btn-block cartBtn"
+                  onClick={backToHomeHandler}
+                >
+                  Back to Shopping
+                </Button>
+              </ListGroup.Item>
+
               {loadingDeliver && <Loader />}
 
               {userInfo &&
