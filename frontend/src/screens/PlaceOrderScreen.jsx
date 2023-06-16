@@ -112,7 +112,6 @@ const PlaceOrderScreen = () => {
       razor.open();
     } catch (error) {
       console.error("Payment error:", error);
-      // Handle error scenario here
     }
   };
 
