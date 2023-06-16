@@ -71,53 +71,52 @@ const PlaceOrderScreen = () => {
     }
   };
   const paymentHandler = async () => {
-    const {
-      data: { order },
-    } = await axios.post("/api/payments/orders", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      amount: cart.totalPrice,
-    });
-    const {
-      data: { key },
-    } = await axios.get("/api/config/id");
-    const options = {
-      key: key,
-      amount: order.amount,
-      currency: "INR",
-      name: "SNEAKY HEADS",
-      description: "Test Transaction",
-      order_id: order.id,
-      handler: function (response) {
-        paymentId = response.razorpay_payment_id;
-
-        window.location.href = `/order/${orderId}`;
-        onApproveTest(paymentId);
-        dispatch(clearCartItems());
-      },
-      prefill: {
-        name: "demo",
-        email: "demo@gmail.com",
-      },
-      notes: {
-        address: "Razorpay Corporate Office",
-      },
-      theme: {
-        color: "#3c4c5d",
-      },
-
-      modal: {
-        ondismiss: function () {
-          handlePaymentFailure();
+    try {
+      const {
+        data: { order },
+      } = await axios.post("/api/payments/orders", {
+        headers: {
+          "Content-Type": "application/json",
         },
-      },
-    };
-    var razor = new window.Razorpay(options);
-    razor.on("payment.failed", function (response) {
-      handlePaymentFailure();
-    });
-    razor.open();
+        amount: cart.totalPrice,
+      });
+      var paid = false;
+      const {
+        data: { key },
+      } = await axios.get("/api/config/id");
+      const options = {
+        key: key,
+        amount: order.amount,
+        currency: "INR",
+        name: "SNEAKY HEADS",
+        description: "Test Transaction",
+        order_id: order.id,
+        handler: function (response) {
+          paymentId = response.razorpay_payment_id;
+          window.location.href = `/order/${orderId}`;
+          onApproveTest(paymentId);
+          dispatch(clearCartItems());
+        },
+        prefill: {
+          name: "demo",
+          email: "demo@gmail.com",
+        },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#3c4c5d",
+        },
+      };
+      var razor = new window.Razorpay(options);
+      razor.on("payment.failed", function (response) {
+        handlePaymentFailure();
+      });
+      razor.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      // Handle error scenario here
+    }
   };
 
   function handlePaymentFailure() {
@@ -218,9 +217,11 @@ const PlaceOrderScreen = () => {
                   <Col>₹ {cart.totalPrice}</Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
-                {error && <Message variant="danger">{error}</Message>}
-              </ListGroup.Item>
+              {error && (
+                <ListGroup.Item>
+                  <Message variant="danger">{error}</Message>
+                </ListGroup.Item>
+              )}
               <ListGroup.Item>
                 <Button
                   type="button"
