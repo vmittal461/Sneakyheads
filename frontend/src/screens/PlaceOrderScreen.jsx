@@ -19,8 +19,9 @@ const PlaceOrderScreen = () => {
   const { refetch } = useGetOrderDetailsQuery();
   const cart = useSelector((state) => state.cart);
   const [sdkReady, setSdkReady] = useState(false);
-  // const [orderId, setOrderId] = useState(null);
-  // const [paymentId, setPaymentId] = useState(null);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [orderId, setOrderId] = useState("");
+  const [paymentId, setPaymentId] = useState("");
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
@@ -46,8 +47,7 @@ const PlaceOrderScreen = () => {
   }, [cart.paymentMethod, cart.shippingAddress.address, navigate]);
 
   const dispatch = useDispatch();
-  var orderId = "";
-  var paymentId = "";
+
   const placeOrderHandler = async () => {
     try {
       const res = await createOrder({
@@ -59,7 +59,7 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      orderId = res._id;
+      setOrderId(res._id);
       if (cart.paymentMethod === "Pay Online") {
         paymentHandler();
       } else {
@@ -93,9 +93,11 @@ const PlaceOrderScreen = () => {
         order_id: order.id,
         handler: function (response) {
           paymentId = response.razorpay_payment_id;
-          window.location.href = `/order/${orderId}`;
-          onApproveTest(paymentId);
+          setPaymentId(response.razorpay_payment_id);
           dispatch(clearCartItems());
+          setTimeout(() => {
+            setShouldRedirect(true);
+          }, 1000); // Delay for 1 second
         },
         prefill: {
           name: "demo",
@@ -112,6 +114,7 @@ const PlaceOrderScreen = () => {
       razor.on("payment.failed", function (response) {
         handlePaymentFailure();
       });
+
       razor.open();
     } catch (error) {
       console.error("Payment error:", error);
