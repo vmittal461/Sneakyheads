@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+@font-face {
+  font-family: 'Calvier Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Calvier Bold'), url('../../../public/fonts/Calvier.woff') format('woff');
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+main {
+  min-height: 80vh;
+}
+
+.brand-lowercase {
+  font-size: 1.8rem;
+  font-family: 'Calvier Bold';
+  text-transform: lowercase;
+}
+
+.logo {
+  font-size: 1.8rem;
+}
+
+.rating span {
+  margin: 0.1rem;
+}
+
+.rating svg {
+  color: #f8e825;
+}
+
+.rating-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding-left: 0.5rem;
+}
+
+.product-title {
+  height: 2.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  color: #808080;
+}
+
+
+
+.cartBtn:hover {
+  color: #f5f5f5;
+  box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.2);
+  transform: translateY(-0.15625rem);
+}
+
+.cardShadow:hover {
+  box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.2);
+  transform: translateY(-0.3125rem);
+}
+
+.form-select-override {
+  padding: 0.5rem 0.5rem 0.75rem 1.5rem !important;
+}
+
+.loader {
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  display: block;
+}
+
+table td,
+table th {
+  text-align: center;
+}
+
+.review {
+  margin-top: 30px;
+}
+
+.review h2 {
+  font-size: 24px;
+  background: #f4f4f4;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.review button {
+  margin-top: 10px;
+}
+
+.carousel-caption {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.carousel-item-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background-color: #fff;
+}
+
+.carousel-item-image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}

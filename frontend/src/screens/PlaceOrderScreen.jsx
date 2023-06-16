@@ -1,20 +1,28 @@
-import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, Redirect } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "../components/Message";
 import CheckoutSteps from "../components/CheckoutSteps";
 import Loader from "../components/Loader";
-import { useCreateOrderMutation } from "../slices/ordersApiSlice";
+import {
+  useCreateOrderMutation,
+  usePayOrderMutation,
+  useGetOrderDetailsQuery,
+} from "../slices/ordersApiSlice";
 import { clearCartItems } from "../slices/cartSlice";
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
-
+  const { refetch } = useGetOrderDetailsQuery();
   const cart = useSelector((state) => state.cart);
-
+  const [sdkReady, setSdkReady] = useState(false);
+  // const [orderId, setOrderId] = useState(null);
+  // const [paymentId, setPaymentId] = useState(null);
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
   useEffect(() => {
     if (!cart.shippingAddress.address) {
@@ -22,9 +30,24 @@ const PlaceOrderScreen = () => {
     } else if (!cart.paymentMethod) {
       navigate("/payment");
     }
+    const addRazorPayScript = () => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        setSdkReady(true);
+      };
+      document.body.appendChild(script);
+    };
+    if (!window.Razorpay) {
+      addRazorPayScript();
+    } else {
+      setSdkReady(true);
+    }
   }, [cart.paymentMethod, cart.shippingAddress.address, navigate]);
 
   const dispatch = useDispatch();
+  var orderId = "";
+  var paymentId = "";
   const placeOrderHandler = async () => {
     try {
       const res = await createOrder({
@@ -36,12 +59,78 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      dispatch(clearCartItems());
-      navigate(`/order/${res._id}`);
+      orderId = res._id;
+      if (cart.paymentMethod === "Pay Online") {
+        paymentHandler();
+      } else {
+        dispatch(clearCartItems());
+        navigate(`/order/${res._id}`);
+      }
     } catch (err) {
       toast.error(err);
     }
   };
+  const paymentHandler = async () => {
+    const {
+      data: { order },
+    } = await axios.post("/api/payments/orders", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      amount: cart.totalPrice,
+    });
+    const {
+      data: { key },
+    } = await axios.get("/api/config/id");
+    const options = {
+      key: key,
+      amount: order.amount,
+      currency: "INR",
+      name: "SNEAKY HEADS",
+      description: "Test Transaction",
+      order_id: order.id,
+      handler: function (response) {
+        paymentId = response.razorpay_payment_id;
+
+        window.location.href = `/order/${orderId}`;
+        onApproveTest(paymentId);
+        dispatch(clearCartItems());
+      },
+      prefill: {
+        name: "demo",
+        email: "demo@gmail.com",
+      },
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#3c4c5d",
+      },
+
+      modal: {
+        ondismiss: function () {
+          handlePaymentFailure();
+        },
+      },
+    };
+    var razor = new window.Razorpay(options);
+    razor.on("payment.failed", function (response) {
+      handlePaymentFailure();
+    });
+    razor.open();
+  };
+
+  function handlePaymentFailure() {
+    console.log("Handling payment failure...");
+    dispatch(clearCartItems());
+    navigate(`/order/${orderId}`);
+  }
+
+  async function onApproveTest(paymentId) {
+    await payOrder({ orderId, details: { id: paymentId, payer: {} } });
+    refetch();
+    toast.success("Order is paid");
+  }
 
   return (
     <>
