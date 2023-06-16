@@ -69,50 +69,58 @@ const PlaceOrderScreen = () => {
       toast.error(err);
     }
   };
-  const paymentHandler = async (orderId) => {
-    try {
-      const {
-        data: { order },
-      } = await axios.post("/api/payments/orders", {
+  const paymentHandler = (orderId) => {
+    axios
+      .post("/api/payments/orders", {
         headers: {
           "Content-Type": "application/json",
         },
         amount: cart.totalPrice,
+      })
+      .then((response) => {
+        const order = response.data.order;
+        axios
+          .get("/api/config/id")
+          .then((response) => {
+            const key = response.data.key;
+            const options = {
+              key: key,
+              amount: order.amount,
+              currency: "INR",
+              name: "SNEAKY HEADS",
+              description: "Test Transaction",
+              order_id: order.id,
+              handler: function (response) {
+                window.location.href = `/order/${orderId}`;
+                onApproveTest(response.razorpay_payment_id, orderId);
+                dispatch(clearCartItems());
+              },
+              prefill: {
+                name: "demo",
+                email: "demo@gmail.com",
+              },
+              notes: {
+                address: "Razorpay Corporate Office",
+              },
+              theme: {
+                color: "#3c4c5d",
+              },
+            };
+            var razor = new window.Razorpay(options);
+            razor.on("payment.failed", function (response) {
+              handlePaymentFailure(orderId);
+            });
+            razor.open();
+          })
+          .catch((error) => {
+            console.error("Error fetching config:", error);
+            // Handle error scenario here
+          });
+      })
+      .catch((error) => {
+        console.error("Payment error:", error);
+        // Handle error scenario here
       });
-      const {
-        data: { key },
-      } = await axios.get("/api/config/id");
-      const options = {
-        key: key,
-        amount: order.amount,
-        currency: "INR",
-        name: "SNEAKY HEADS",
-        description: "Test Transaction",
-        order_id: order.id,
-        handler: function (response) {
-          window.location.href = `/order/${orderId}`;
-          onApproveTest(response.razorpay_payment_id, orderId);
-          dispatch(clearCartItems());
-        },
-        prefill: {
-          name: "demo",
-          email: "demo@gmail.com",
-        },
-        notes: {
-          address: "Razorpay Corporate Office",
-        },
-        theme: {
-          color: "#3c4c5d",
-        },
-      };
-      var razor = new window.Razorpay(options);
-      razor.on("payment.failed", function (response) {
-        handlePaymentFailure(orderId);
-      });
-      razor.open();
-    } catch (error) {
-      console.error("Payment error:", error);
-    }
   };
 
   function handlePaymentFailure(orderId) {
