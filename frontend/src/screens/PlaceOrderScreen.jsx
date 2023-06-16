@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, Redirect } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
@@ -19,9 +19,8 @@ const PlaceOrderScreen = () => {
   const { refetch } = useGetOrderDetailsQuery();
   const cart = useSelector((state) => state.cart);
   const [sdkReady, setSdkReady] = useState(false);
-  const [shouldRedirect, setShouldRedirect] = useState(false);
-  const [orderId, setOrderId] = useState("");
-  const [paymentId, setPaymentId] = useState("");
+  // const [orderId, setOrderId] = useState(null);
+  // const [paymentId, setPaymentId] = useState(null);
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
@@ -59,9 +58,9 @@ const PlaceOrderScreen = () => {
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      setOrderId(res._id);
+
       if (cart.paymentMethod === "Pay Online") {
-        paymentHandler();
+        paymentHandler(res._id);
       } else {
         dispatch(clearCartItems());
         navigate(`/order/${res._id}`);
@@ -70,7 +69,7 @@ const PlaceOrderScreen = () => {
       toast.error(err);
     }
   };
-  const paymentHandler = async () => {
+  const paymentHandler = async (orderId) => {
     try {
       const {
         data: { order },
@@ -80,7 +79,6 @@ const PlaceOrderScreen = () => {
         },
         amount: cart.totalPrice,
       });
-      var paid = false;
       const {
         data: { key },
       } = await axios.get("/api/config/id");
@@ -92,12 +90,9 @@ const PlaceOrderScreen = () => {
         description: "Test Transaction",
         order_id: order.id,
         handler: function (response) {
-          paymentId = response.razorpay_payment_id;
-          setPaymentId(response.razorpay_payment_id);
+          window.location.href = `/order/${orderId}`;
+          onApproveTest(response.razorpay_payment_id, orderId);
           dispatch(clearCartItems());
-          setTimeout(() => {
-            setShouldRedirect(true);
-          }, 1000); // Delay for 1 second
         },
         prefill: {
           name: "demo",
@@ -112,9 +107,8 @@ const PlaceOrderScreen = () => {
       };
       var razor = new window.Razorpay(options);
       razor.on("payment.failed", function (response) {
-        handlePaymentFailure();
+        handlePaymentFailure(orderId);
       });
-
       razor.open();
     } catch (error) {
       console.error("Payment error:", error);
@@ -122,13 +116,13 @@ const PlaceOrderScreen = () => {
     }
   };
 
-  function handlePaymentFailure() {
+  function handlePaymentFailure(orderId) {
     console.log("Handling payment failure...");
     dispatch(clearCartItems());
     navigate(`/order/${orderId}`);
   }
 
-  async function onApproveTest(paymentId) {
+  async function onApproveTest(paymentId, orderId) {
     await payOrder({ orderId, details: { id: paymentId, payer: {} } });
     refetch();
     toast.success("Order is paid");
