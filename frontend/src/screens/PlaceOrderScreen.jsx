@@ -39,7 +39,7 @@ const PlaceOrderScreen = () => {
     } else {
       setSdkReady(true);
     }
-  }, [cart.paymentMethod, cart.shippingAddress.address, navigate]);
+  }, [cart.paymentMethod, cart.shippingAddress.address, navigate, sdkReady]);
 
   const dispatch = useDispatch();
 
@@ -214,6 +214,7 @@ const PlaceOrderScreen = () => {
                 </ListGroup.Item>
               )}
               <ListGroup.Item>
+                {loadingPay && <Loader />}
                 <Button
                   type="button"
                   className="btn-block cartBtn"
