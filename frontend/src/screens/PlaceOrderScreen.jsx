@@ -34,7 +34,7 @@ const PlaceOrderScreen = () => {
       };
       document.body.appendChild(script);
     };
-    if (!window.Razorpay) {
+    if (!window.Razorpay && !sdkReady) {
       addRazorPayScript();
     } else {
       setSdkReady(true);
@@ -86,9 +86,8 @@ const PlaceOrderScreen = () => {
         description: "Test Transaction",
         order_id: order.id,
         handler: function (response) {
-          window.location.href = `/order/${orderId}`;
-          onApproveTest(response.razorpay_payment_id, orderId);
           dispatch(clearCartItems());
+          onApproveTest(response.razorpay_payment_id, orderId);
         },
         prefill: {
           name: "demo",
@@ -119,6 +118,7 @@ const PlaceOrderScreen = () => {
 
   async function onApproveTest(paymentId, orderId) {
     await payOrder({ orderId, details: { id: paymentId, payer: {} } });
+    navigate(`/order/${orderId}`);
     toast.success("Order is paid");
   }
 
