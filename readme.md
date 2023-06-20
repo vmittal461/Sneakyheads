@@ -1,14 +1,15 @@
 # Sneakyheads
 
-> eCommerce platform built with the MERN stack & Redux.
+> E-Commerce platform built with the MERN stack & Redux.
 
 <img src="./frontend/public/images/screens.png">
 
 Sneakyheads is an e-commerce website for sneaker enthusiasts. It offers a wide range of trendy sneakers from various brands. Users can explore top products, add items to their cart, go through the checkout process, and manage their profile.
+[Click here](https://sneakyheads.onrender.com/)
 
 ## Features
 
-- Full featured shopping cart
+- Full-featured shopping cart
 - Product reviews and ratings
 - Top products carousel
 - Product pagination
@@ -17,14 +18,14 @@ Sneakyheads is an e-commerce website for sneaker enthusiasts. It offers a wide r
 - Admin product management
 - Admin user management
 - Admin Order details page
-- Mark orders as delivered option
+- Mark orders as a delivered option
 - Checkout process (shipping, payment method, etc)
 - Database seeder (products & users)
 
 ## Usage
 
 - Create a MongoDB database and obtain your `MongoDB URI` - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
-
+- Create a RazorPay account and obtain your `Key and Secret` - [RazorPay](https://razorpay.com/)
 ### Env Variables
 
 ```bash
@@ -32,10 +33,12 @@ NODE_ENV=development
 PORT=5000
 MONGO_URI=your-mongodb-uri
 JWT_SECRET=your-jwt-secret
+KEY=your-razorpay-key
+SECRET=your-razorpay-secret
 PAGINATION_LIMIT = 5
 ```
 
-Change the JWT_SECRET and PAGINATION_LIMIT to what you want
+Change the JWT_SECRET and PAGINATION_LIMIT to what you want & add your MONGO_URI, KEY, and SECRET.
 
 ### Install Dependencies (frontend & backend)
 
@@ -109,4 +112,3 @@ THE SOFTWARE.
 ## Contributing
 
 Contributions are welcome! If you find any bugs or want to suggest improvements, please [open an issue](https://github.com/varunmittal461/Sneakyheads/issues) or [submit a pull request](https://github.com/varunmittal461/Sneakyheads/pulls).
-```
