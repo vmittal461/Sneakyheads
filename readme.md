@@ -19,6 +19,7 @@ Sneakyheads is an e-commerce website for sneaker enthusiasts. It offers a wide r
 - Admin user management
 - Admin Order details page
 - Mark orders as a delivered option
+- Payment Gateway
 - Checkout process (shipping, payment method, etc)
 - Database seeder (products & users)
 
