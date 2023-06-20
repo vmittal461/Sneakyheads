@@ -23,6 +23,8 @@ main {
 
 .logo {
   font-size: 1.8rem;
+  height: 50px;
+  width: 50px;
 }
 
 .rating span {
