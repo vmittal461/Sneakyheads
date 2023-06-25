@@ -7,6 +7,10 @@ import { useGetOrdersQuery } from "../../slices/ordersApiSlice";
 
 const OrderListScreen = () => {
   const { data: orders, isLoading, error } = useGetOrdersQuery();
+  if (isLoading) {
+    return <Loader />;
+  }
+  const reversedOrders = [...orders].reverse();
 
   return (
     <>
@@ -31,7 +35,7 @@ const OrderListScreen = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {reversedOrders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>
                 <td>{order.user && order.user.name}</td>
